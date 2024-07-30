@@ -1,5 +1,6 @@
 package br.com.beltis.ergo.infra.security;
 
+import br.com.beltis.ergo.domain.model.enums.UserRole;
 import br.com.beltis.ergo.infra.security.filter.SecurityFilter;
 import br.com.beltis.ergo.infra.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig{
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Autowired
     SecurityFilter securityFilter;
+
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,6 +39,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/v1/api/ergo/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/api/ergo/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/api/ergo/adicionar-projeto").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/ergo/atualizar-projeto/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/ergo/excluir-projeto/{id}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
@@ -49,4 +57,5 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
 }

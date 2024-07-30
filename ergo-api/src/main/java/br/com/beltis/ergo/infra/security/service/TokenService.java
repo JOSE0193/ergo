@@ -1,6 +1,6 @@
 package br.com.beltis.ergo.infra.security.service;
 
-import br.com.beltis.ergo.domain.model.Users;
+import br.com.beltis.ergo.domain.model.ApplicationUser;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
@@ -18,18 +18,18 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String generateToken(Users users){
+    public String generateToken(ApplicationUser users){
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             String token = JWT.create()
                     .withIssuer("ergo-api")
-                    .withSubject(users.getEmail())
+                    .withSubject(users.getLogin())
                     .withExpiresAt(this.generateExpirationDate())
                     .sign(algorithm);
             return token;
         } catch (JWTCreationException exception){
-            throw new RuntimeException("Error while authenticating");
+            throw new RuntimeException("Error while authenticating", exception);
         }
     }
 
@@ -42,7 +42,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            return null;
+            return "";
         }
     }
 

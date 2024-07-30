@@ -1,8 +1,8 @@
 package br.com.beltis.ergo.infra.security.service;
 
-import br.com.beltis.ergo.domain.model.Users;
-import br.com.beltis.ergo.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import br.com.beltis.ergo.domain.model.ApplicationUser;
+import br.com.beltis.ergo.domain.model.Usuario;
+import br.com.beltis.ergo.repository.ApplicationUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,16 +13,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-@Component
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private ApplicationUserRepository applicationUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users users = this.userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return new User(users.getEmail(), users.getPassword(), new ArrayList<>());
+        ApplicationUser users = this.applicationUserRepository.findByLogin(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new User(users.getLogin(), users.getPassword(), new ArrayList<>());
     }
 
 }

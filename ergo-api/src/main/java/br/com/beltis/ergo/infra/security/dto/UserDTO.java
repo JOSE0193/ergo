@@ -1,7 +1,9 @@
 package br.com.beltis.ergo.infra.security.dto;
 
-public record ResponseDTO(
+public record UserDTO(
+
+        String nome,
         String login,
-        String token
+        String role
 ) {
 }
